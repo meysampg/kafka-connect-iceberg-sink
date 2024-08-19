@@ -227,19 +227,14 @@ public class IcebergChangeEvent {
         }
         break;
       case LIST:
-        // for now we support two LIST type cases
         Types.ListType listType = (Types.ListType) field.type();
-        if (listType.elementType().typeId() == TypeID.STRUCT) {
-            List<GenericRecord> structList = new ArrayList<>();
-            Iterator<JsonNode> it = node.iterator();
-            while (it.hasNext()) {
-                structList.add(asIcebergRecord(listType.elementType().asStructType(), it.next()));
-            }
-            val = structList;
+        List<Object> structList = new ArrayList<>();
+        Types.NestedField listField = listType.fields().stream().findFirst().get();
+        Iterator<JsonNode> it = node.iterator();
+        while (it.hasNext()) {
+          structList.add(jsonValToIcebergVal(listField, it.next()));
         }
-        else {
-            val = MAPPER.convertValue(node, ArrayList.class);
-        }
+        val = structList;
         break;
       case MAP:
         val = MAPPER.convertValue(node, Map.class);
