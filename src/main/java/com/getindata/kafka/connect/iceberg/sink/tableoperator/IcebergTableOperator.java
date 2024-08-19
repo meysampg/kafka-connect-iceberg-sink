@@ -160,9 +160,18 @@ public class IcebergTableOperator {
         BaseTaskWriter<Record> writer = writerFactory.create(icebergTable);
         try {
             for (IcebergChangeEvent e : events) {
-                writer.write(e.asIcebergRecord(icebergTable.schema(),
-                        configuration.getPartitionColumn(),
-                        configuration.getPartitionTimestamp()));
+                try {
+                    writer.write(e.asIcebergRecord(icebergTable.schema(),
+                            configuration.getPartitionColumn(),
+                            configuration.getPartitionTimestamp()));
+                } catch (Exception ex) {
+                    LOGGER.debug("Malformed record information:\n{}\n{}\n{}\n{}\n",
+                            icebergTable.schema().toString(),
+                            configuration.getPartitionColumn(),
+                            configuration.getPartitionTimestamp(),
+                            e.asIcebergRecord(icebergTable.schema(), configuration.getPartitionColumn(), configuration.getPartitionTimestamp()).toString());
+                    throw ex;
+                }
             }
 
             writer.close();
