@@ -203,6 +203,9 @@ public class IcebergChangeEvent {
         if (node.isLong()) {
           val = LocalTime.ofNanoOfDay(node.asLong() * 1000);
         }
+        else if (node.isInt()) {
+          val = LocalTime.ofNanoOfDay(node.asInt() * 1000L);
+        }
         else if (node.isTextual()) {
           // Debezium converts ZonedTime values to UTC on capture, so no information is lost by converting them
           // to LocalTimes here. Iceberg doesn't support a ZonedTime equivalent anyway.
