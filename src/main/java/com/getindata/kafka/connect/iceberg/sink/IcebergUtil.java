@@ -53,6 +53,7 @@ public class IcebergUtil {
       formatVersion = configuration.getFormatVersion();
     }
     return icebergCatalog.buildTable(tableIdentifier, schema)
+        .withLocation(configuration.getWarehouseLocation())
         .withProperties(configuration.getIcebergTableConfiguration())
         .withProperty(FORMAT_VERSION, formatVersion)
         .withSortOrder(IcebergUtil.getIdentifierFieldsAsSortOrder(schema))

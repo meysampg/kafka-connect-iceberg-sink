@@ -1,5 +1,6 @@
 package com.getindata.kafka.connect.iceberg.sink;
 
+import org.apache.hadoop.fs.Path;
 import org.apache.kafka.common.config.AbstractConfig;
 import org.apache.kafka.common.config.ConfigDef;
 
@@ -19,6 +20,8 @@ public class IcebergSinkConfiguration {
     public static final String ALLOW_FIELD_ADDITION = "allow-field-addition";
     public static final String TABLE_NAMESPACE = "table.namespace";
     public static final String TABLE_PREFIX = "table.prefix";
+    public static final String WAREHOUSE_LOCATION = "warehouse.location";
+    public static final String TABLE_PATH_LOCATION = "table.path.location";
     public static final String TABLE_AUTO_CREATE = "table.auto-create";
     public static final String TABLE_SNAKE_CASE = "table.snake-case";
     public static final String RICH_TEMPORAL_TYPES = "rich-temporal-types";
@@ -52,6 +55,8 @@ public class IcebergSinkConfiguration {
                     "Table namespace. In Glue it will be used as database name")
             .define(TABLE_PREFIX, STRING, "", MEDIUM,
                     "Prefix added to all table names")
+            .define(WAREHOUSE_LOCATION, STRING, "", MEDIUM, "Location of database warehouse")
+            .define(TABLE_PATH_LOCATION, STRING, "", MEDIUM, "Location of database table")
             .define(TABLE_SNAKE_CASE, BOOLEAN, false, MEDIUM,
                     "Coerce table names to snake_case")
             .define(RICH_TEMPORAL_TYPES, BOOLEAN, false, MEDIUM,
@@ -148,6 +153,13 @@ public class IcebergSinkConfiguration {
 
     public Map<String, String> getIcebergCatalogConfiguration() {
         return getConfiguration(ICEBERG_PREFIX);
+    }
+
+    public String getWarehouseLocation() {
+        return new Path(
+                parsedConfig.getString(WAREHOUSE_LOCATION),
+                parsedConfig.getString(TABLE_PATH_LOCATION).replaceFirst("^/+", "")
+        ).toString();
     }
 
     public Map<String, String> getIcebergTableConfiguration() {
